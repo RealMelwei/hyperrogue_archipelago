@@ -483,17 +483,18 @@ EX void placePrizeOrb(cell *c) {
   for(auto& oi: orbinfos) {
     if(!(oi.flags & orbgenflags::GLOBAL25)) continue;
 
-    int mintreas = 25;
+    /*int mintreas = 25;
     if(inv::on) {
       if(oi.flags & orbgenflags::OSM_GLOBAL100) mintreas = 100;
       else continue;
       }
+    */
 
     eOrbLandRelation olr = getOLR(oi.orb, l);
     if(olr != olrPrize25 && olr != olrPrize3) continue;
     eItem orbLandTreasure = linf[oi.l].treasure;
     int treas = ap::getVirtualTreasureCount(ap::landChecksReceived[orbLandTreasure]);
-    if(olr == olrPrize3) treas *= 10;
+    //if(olr == olrPrize3) treas *= 10;
     if(olr == olrPrize25 || olr == olrPrize3 || olr == olrGuest || olr == olrMonster || olr == olrAlways) {
       if(ap::landChecksReceived[orbLandTreasure]<ap::progressCheck::orbunlockedglobal) continue;
       //if(treas < mintreas) continue;
