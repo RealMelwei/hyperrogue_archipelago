@@ -222,11 +222,11 @@ void ap::checks::updateChecks(){
         checks::collectCheck(treasure, progressCheck::unlocked);
         ap::landUnlockCheckSent[treasure] = true;
       }
-      if(landProgressChecksSent[treasure]==progressCheck::unlocked && items[treasure]>=(l==laCamelot ? 3 : getVirtualTreasureCount(progressCheck::orbunlocked, linf[l].treasure))){
+      if(landProgressChecksSent[treasure]==progressCheck::unlocked && items[treasure]>=(l==laCamelot ? 1 : getVirtualTreasureCount(progressCheck::orbunlocked, linf[l].treasure))){
         checks::collectCheck(treasure, progressCheck::orbunlocked);
         ap::landProgressChecksSent[treasure] = progressCheck::orbunlocked;
       }
-      if(landProgressChecksSent[treasure]==progressCheck::orbunlocked && items[treasure]>=(l==laCamelot ? 5 : getVirtualTreasureCount(progressCheck::orbunlockedglobal, linf[l].treasure))){
+      if(landProgressChecksSent[treasure]==progressCheck::orbunlocked && items[treasure]>=(l==laCamelot ? 3 : getVirtualTreasureCount(progressCheck::orbunlockedglobal, linf[l].treasure))){
         checks::collectCheck(treasure, progressCheck::orbunlockedglobal);
         ap::landProgressChecksSent[treasure] = progressCheck::orbunlockedglobal;
       }
