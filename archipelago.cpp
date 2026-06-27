@@ -35,9 +35,9 @@ bool ap::isOrb(eItem item){
 int ap::getVirtualTreasureCount(progressCheck prog, eItem i = itDiamond){
   if(inv::on){
     switch (prog){
-     case progressCheck::orbunlocked: return 25;
-     case progressCheck::orbunlockedglobal: return 50;
-     case progressCheck::completed: return 100;
+     case progressCheck::orbunlocked: return (i==itHolyGrail ? 1 : 25);
+     case progressCheck::orbunlockedglobal: return (i==itHolyGrail ? 3 : 50);
+     case progressCheck::completed: return (i==itHolyGrail ? 8 : 100);
      default: return 0;
     }
   } else {
@@ -104,16 +104,29 @@ eLand ap::init::getFirstLand(){
 RANDOMIZER CHECK MANAGEMENT
 */
 
+progressCheck ap::checks::sendingProgress(eItem it){
+  if(!landProgressChecksSent[it][(int) progressCheck::orbunlocked] || (settings::extra_location_10 && !landProgressChecksSent[it][(int) progressCheck::orbunlocked_extra])){
+    return progressCheck::unlocked;
+  }
+  if(!landProgressChecksSent[it][(int) progressCheck::orbunlockedglobal] || (settings::extra_location_25 && !landProgressChecksSent[it][(int) progressCheck::orbunlockedglobal_extra])){
+    return progressCheck::orbunlocked;
+  }
+  if(!landProgressChecksSent[it][(int) progressCheck::completed] || (settings::extra_location_50 && !landProgressChecksSent[it][(int) progressCheck::completed_extra])){
+    return progressCheck::orbunlockedglobal;
+  }
+  return progressCheck::completed;
+}
+
 void ap::checks::hintLand(eLand land){
   LATE(
   if (client && client->get_state() >= APClient::State::SLOT_CONNECTED) {
-    switch(landProgressChecksSent[linf[land].treasure]){
+    switch(sendingProgress(linf[land].treasure)){
       case progressCheck::orbunlocked:
         if(settings::requiredTreasures >= 25){
           if(settings::extra_location_25){
-            client -> LocationScouts({getLocationID(linf[land].treasure, progressCheck::orbunlockedglobal, (bool)(rand() % 2))}, 1);
+            client -> LocationScouts({getLocationID(linf[land].treasure, ((randd() > 0.5) ? progressCheck::orbunlockedglobal : progressCheck::orbunlockedglobal_extra))}, 1);
           } else {
-            client -> LocationScouts({getLocationID(linf[land].treasure, progressCheck::orbunlockedglobal, false)}, 1);
+            client -> LocationScouts({getLocationID(linf[land].treasure, progressCheck::orbunlockedglobal)}, 1);
           }
         }
         break;
@@ -121,9 +134,9 @@ void ap::checks::hintLand(eLand land){
       case progressCheck::orbunlockedglobal:
         if(settings::requiredTreasures >= 50){
           if(settings::extra_location_50){
-            client -> LocationScouts({getLocationID(linf[land].treasure, progressCheck::completed, (bool)(rand() % 2))}, 1);
+            client -> LocationScouts({getLocationID(linf[land].treasure, ((randd() > 0.5) ? progressCheck::completed : progressCheck::completed_extra))}, 1);
           } else {
-            client -> LocationScouts({getLocationID(linf[land].treasure, progressCheck::completed, false)}, 1);
+            client -> LocationScouts({getLocationID(linf[land].treasure, progressCheck::completed)}, 1);
           }
         }
         break;
@@ -194,20 +207,9 @@ void ap::checks::receiveCheck(APClient::NetworkItem netitem){
 
 void ap::checks::collectCheck(eItem treasure, progressCheck progress){
   if (client && client->get_state() >= APClient::State::SLOT_CONNECTED) {
-    if (treasure != itHyperstone && (progress == progressCheck::unlocked && !landUnlockCheckSent[treasure])){
-      client -> LocationChecks({getLocationID(treasure, progress, false)});
-    }
-    if(treasure != itHyperstone && progress > landProgressChecksSent[treasure] && getVirtualTreasureCount(progress) <= settings::requiredTreasures){
-      client -> LocationChecks({getLocationID(treasure, progress, false)});
-    }
-    if(treasure != itHyperstone && progress > landProgressChecksSent[treasure] && progress == progressCheck::orbunlocked && settings::extra_location_10){
-      client -> LocationChecks({getLocationID(treasure, progress, true)});
-    }
-    if(treasure != itHyperstone && progress > landProgressChecksSent[treasure] && progress == progressCheck::orbunlockedglobal && settings::extra_location_25){
-      client -> LocationChecks({getLocationID(treasure, progress, true)});
-    }
-    if(treasure != itHyperstone && progress > landProgressChecksSent[treasure] && progress == progressCheck::completed && settings::extra_location_50){
-      client -> LocationChecks({getLocationID(treasure, progress, true)});
+    if (treasure != itHyperstone && !landProgressChecksSent[treasure][(int) progress]){
+      client -> LocationChecks({getLocationID(treasure, progress)});
+      landProgressChecksSent[treasure][(int) progress] = true;
     }
   }
 }
@@ -218,21 +220,20 @@ void ap::checks::updateChecks(){
       eLand l = eLand(i);
       eItem treasure = linf[l].treasure;
 
-      if(ap::landProgressChecksSent[treasure] != progressCheck::notingame && !ap::landUnlockCheckSent[treasure] && landUnlockedLegacy(l)){
+      if(landUnlockedLegacy(l)){
         checks::collectCheck(treasure, progressCheck::unlocked);
-        ap::landUnlockCheckSent[treasure] = true;
       }
-      if(landProgressChecksSent[treasure]==progressCheck::unlocked && items[treasure]>=(l==laCamelot ? 1 : getVirtualTreasureCount(progressCheck::orbunlocked, linf[l].treasure))){
+      if(items[treasure]>=getVirtualTreasureCount(progressCheck::orbunlocked, linf[l].treasure)){
         checks::collectCheck(treasure, progressCheck::orbunlocked);
-        ap::landProgressChecksSent[treasure] = progressCheck::orbunlocked;
+        if(settings::extra_location_10) checks::collectCheck(treasure, progressCheck::orbunlocked_extra);
       }
-      if(landProgressChecksSent[treasure]==progressCheck::orbunlocked && items[treasure]>=(l==laCamelot ? 3 : getVirtualTreasureCount(progressCheck::orbunlockedglobal, linf[l].treasure))){
+      if(items[treasure]>=getVirtualTreasureCount(progressCheck::orbunlockedglobal, linf[l].treasure)){
         checks::collectCheck(treasure, progressCheck::orbunlockedglobal);
-        ap::landProgressChecksSent[treasure] = progressCheck::orbunlockedglobal;
+        if(settings::extra_location_25) checks::collectCheck(treasure, progressCheck::orbunlockedglobal_extra);
       }
-      if(landProgressChecksSent[treasure]==progressCheck::orbunlockedglobal && items[treasure]>=(l==laCamelot ? 8 : getVirtualTreasureCount(progressCheck::completed, linf[l].treasure))){
+      if(items[treasure]>=getVirtualTreasureCount(progressCheck::completed, linf[l].treasure)){
         checks::collectCheck(treasure, progressCheck::completed);
-        ap::landProgressChecksSent[treasure] = progressCheck::completed;
+        if(settings::extra_location_50) checks::collectCheck(treasure, progressCheck::completed_extra);
       }
     }
 
@@ -267,18 +268,8 @@ void ap::checks::doFullSync(){
     for(int i=0; i<eItem::ittypes; i++){
       eItem item = eItem(i);
       if(isTreasure(item)){
-        if(landUnlockCheckSent[item]) locations.push_back(getLocationID(item, progressCheck::unlocked, false));
-        if(landProgressChecksSent[item]>=progressCheck::orbunlocked) {
-          locations.push_back(getLocationID(item, progressCheck::orbunlocked, false));
-          locations.push_back(getLocationID(item, progressCheck::orbunlocked, true));
-        }
-        if(landProgressChecksSent[item]>=progressCheck::orbunlockedglobal) {
-          locations.push_back(getLocationID(item, progressCheck::orbunlockedglobal, false));
-          locations.push_back(getLocationID(item, progressCheck::orbunlockedglobal, true));
-        }
-        if(landProgressChecksSent[item]>=progressCheck::completed) {
-          locations.push_back(getLocationID(item, progressCheck::completed, false));
-          locations.push_back(getLocationID(item, progressCheck::completed, true));
+        for (int progress_id = 1; progress_id < 8; progress_id++){
+          if(landProgressChecksSent[item][progress_id]) locations.push_back(getLocationID(item, static_cast<ap::progressCheck>(progress_id)));
         }
       }
     }
@@ -322,7 +313,7 @@ void ap::sendDeathLink(std::string msg)
 /*
 SAVE MANAGEMENT
 */
-
+/* DEPRECATED 
 void ap::saves::writeApState(std::string fileName){
   std::ofstream statefile;
   statefile.open (fileName);
@@ -367,5 +358,6 @@ void ap::saves::readApState(std::string fileName) {
   }
   return;
 }
+*/
 
 #endif

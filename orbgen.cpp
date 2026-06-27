@@ -464,8 +464,8 @@ EX void placePrizeOrb(cell *c) {
 
   if(hrandf() < 0.1f && ap::settings::hintOrb){
     eItem it = linf[c->land].treasure;
-    if((ap::landProgressChecksSent[it] <= ap::progressCheck::orbunlocked && items[it] >= 10 && ap::settings::requiredTreasures >= 25) 
-    | (ap::landProgressChecksSent[it] <= ap::progressCheck::orbunlockedglobal && items[it] >= 25 && ap::settings::requiredTreasures >= 50)) {
+    if((ap::checks::sendingProgress(it) <= ap::progressCheck::orbunlocked && items[it] >= 10 && ap::settings::requiredTreasures >= 25) 
+    | (ap::checks::sendingProgress(it) <= ap::progressCheck::orbunlockedglobal && items[it] >= 25 && ap::settings::requiredTreasures >= 50)) {
       c->item = itOrbForesight;
       return;
     }

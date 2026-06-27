@@ -113,63 +113,29 @@ void connect_ap(const std::string& uri="", const std::string& newSlot="", const 
     client->set_slot_connected_handler([](const json& data){
         ap::settings::readSettings(data);
 
-        ap::progressCheck landProgressChecksSentIncoming[eItem::ittypes]={};
-        bool landUnlockCheckSentIncoming[eItem::ittypes]={};
-        for(int i=0; i<eItem::ittypes; i++){
-            landProgressChecksSentIncoming[i]=ap::progressCheck::unlocked;
-        }
+        bool landProgressChecksSentIncoming[eItem::ittypes][8]={false};
         std::set<int64_t> checked_locations = client->get_checked_locations();
         for(int loc_id: checked_locations){
             int land_id = (loc_id - HYPERROGUE_BASE_ID)%0X100;
-            int progress_id = (loc_id - HYPERROGUE_BASE_ID) - land_id;
+            int progress_id = ((loc_id - HYPERROGUE_BASE_ID) - land_id)/0x100 + 1;
             eItem item = ap::itemByID[land_id];
-            if(progress_id == 0){
-                landUnlockCheckSentIncoming[item] = true;
-            }
-            else {
-                switch (landProgressChecksSentIncoming[item])
-                {
-                case ap::progressCheck::unlocked: 
-                    landProgressChecksSentIncoming[item]=ap::progressCheck::orbunlocked;
-                    break;
-                case ap::progressCheck::orbunlocked: 
-                    landProgressChecksSentIncoming[item]=ap::progressCheck::orbunlockedglobal;
-                    break;
-                case ap::progressCheck::orbunlockedglobal:
-                    landProgressChecksSentIncoming[item]=ap::progressCheck::completed;
-                    break;
-                case ap::progressCheck::notingame:
-                    std::cout << "Server accepted check for " << iinf[item].name << ", which is not in the game." << std::endl;
-                    break;
-                default:
-                    break;
-                }
-            }
+            landProgressChecksSentIncoming[item][progress_id] = true;
         }
         bool haveToSync = false;
         for(int i=0; i<eItem::ittypes; i++){
             eItem item = eItem(i);
             if(ap::isTreasure(item)){
-                if((!landUnlockCheckSentIncoming[item]) && ap::landUnlockCheckSent[item]){ //Happens if checks are collected while not online
-                    haveToSync = true;
-                }
-                ap::landUnlockCheckSent[item] = ap::landUnlockCheckSent[item] || landUnlockCheckSentIncoming[item];
-                if(landProgressChecksSentIncoming[item]<ap::landProgressChecksSent[item]){ //Happens if checks are collected while not online
-                    haveToSync = true;
-                } else {
-                    ap::landProgressChecksSent[item] = landProgressChecksSentIncoming[item];
+                for(int progress_id = 1; progress_id < 8; progress_id++){
+                    if((!landProgressChecksSentIncoming[item][progress_id]) && ap::landProgressChecksSent[item][progress_id]){ //Happens if checks are collected while not online
+                        haveToSync = true;
+                    }
+                    ap::landProgressChecksSent[item][progress_id] = landProgressChecksSentIncoming[item][progress_id] || landProgressChecksSent[item][progress_id];
                 }
             }
         }
         if(haveToSync){
             ap::checks::doFullSync();
             ap_sync_queued = true;
-        }
-        for(int i=0; i<eItem::ittypes; i++){
-            eItem item = eItem(i);
-            if(ap::isTreasure(item)){
-                std::cout << iinf[item].name << ", Sent: " << (int) landProgressChecksSent[item] << ", Incoming Sent: " << (int) landProgressChecksSentIncoming[item] << std::endl;
-            }
         }
         if(ap::settings::deathLink) client->ConnectUpdate(false, 0b111, true, {"AP", "DeathLink"});
         printf("Slot connected\n");

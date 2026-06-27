@@ -149,9 +149,9 @@ constexpr unsigned int str2int(const char* str, int h = 0)
     return !str[h] ? 5381 : (str2int(str, h+1) * 33) ^ str[h];
 }
 
-int ap::getLocationID(eItem treas, ap::progressCheck prog, bool extra){
+int ap::getLocationID(eItem treas, ap::progressCheck prog){
   if(prog == ap::progressCheck::notingame || prog == ap::progressCheck::locked) return -1;
-  int progBaseID = 0X100 * (((int) prog) - 1) + 0X300 * (int) extra;
+  int progBaseID = 0X100 * (((int) prog) - 1);
   switch(str2int(iinf[treas].name)){
   case str2int("Ice Diamond"):         return  HYPERROGUE_BASE_ID + progBaseID + 0x000;
   case str2int("Gold"):                return  HYPERROGUE_BASE_ID + progBaseID + 0x001;
