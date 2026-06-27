@@ -223,6 +223,13 @@ void ap::checks::updateChecks(){
       if(landUnlockedLegacy(l)){
         checks::collectCheck(treasure, progressCheck::unlocked);
       }
+      if(l == laHaunted && cwt.at->land == laHaunted){
+        break;
+      }
+      if(l == laDungeon && cwt.at->land == laDungeon){
+        break;
+      }
+
       if(items[treasure]>=getVirtualTreasureCount(progressCheck::orbunlocked, linf[l].treasure)){
         checks::collectCheck(treasure, progressCheck::orbunlocked);
         if(settings::extra_location_10) checks::collectCheck(treasure, progressCheck::orbunlocked_extra);
