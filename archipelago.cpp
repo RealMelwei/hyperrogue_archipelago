@@ -32,7 +32,7 @@ bool ap::isOrb(eItem item){
   return (iinf[item].itemclass==IC_ORB);
 }
 
-int ap::getVirtualTreasureCount(progressCheck prog){
+int ap::getVirtualTreasureCount(progressCheck prog, eItem i = itDiamond){
   if(inv::on){
     switch (prog){
      case progressCheck::orbunlocked: return 25;
@@ -42,9 +42,9 @@ int ap::getVirtualTreasureCount(progressCheck prog){
     }
   } else {
     switch (prog){
-     case progressCheck::orbunlocked: return 10;
-     case progressCheck::orbunlockedglobal: return 25;
-     case progressCheck::completed: return 50;
+     case progressCheck::orbunlocked: return (i==itHolyGrail ? 1 : 10);
+     case progressCheck::orbunlockedglobal: return (i==itHolyGrail ? 3 : 25);
+     case progressCheck::completed: return (i==itHolyGrail ? 8 : 50);
      default: return 0;
     }
   }
@@ -222,15 +222,15 @@ void ap::checks::updateChecks(){
         checks::collectCheck(treasure, progressCheck::unlocked);
         ap::landUnlockCheckSent[treasure] = true;
       }
-      if(landProgressChecksSent[treasure]==progressCheck::unlocked && items[treasure]>=(l==laCamelot ? 3 : getVirtualTreasureCount(progressCheck::orbunlocked))){
+      if(landProgressChecksSent[treasure]==progressCheck::unlocked && items[treasure]>=(l==laCamelot ? 3 : getVirtualTreasureCount(progressCheck::orbunlocked, linf[l].treasure))){
         checks::collectCheck(treasure, progressCheck::orbunlocked);
         ap::landProgressChecksSent[treasure] = progressCheck::orbunlocked;
       }
-      if(landProgressChecksSent[treasure]==progressCheck::orbunlocked && items[treasure]>=(l==laCamelot ? 5 : getVirtualTreasureCount(progressCheck::orbunlockedglobal))){
+      if(landProgressChecksSent[treasure]==progressCheck::orbunlocked && items[treasure]>=(l==laCamelot ? 5 : getVirtualTreasureCount(progressCheck::orbunlockedglobal, linf[l].treasure))){
         checks::collectCheck(treasure, progressCheck::orbunlockedglobal);
         ap::landProgressChecksSent[treasure] = progressCheck::orbunlockedglobal;
       }
-      if(landProgressChecksSent[treasure]==progressCheck::orbunlockedglobal && items[treasure]>=(l==laCamelot ? 8 : getVirtualTreasureCount(progressCheck::completed))){
+      if(landProgressChecksSent[treasure]==progressCheck::orbunlockedglobal && items[treasure]>=(l==laCamelot ? 8 : getVirtualTreasureCount(progressCheck::completed, linf[l].treasure))){
         checks::collectCheck(treasure, progressCheck::completed);
         ap::landProgressChecksSent[treasure] = progressCheck::completed;
       }

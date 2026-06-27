@@ -36,7 +36,7 @@ bool deathLinkPending = false;
 int getNumberOfProgressedLands(progressCheck prog);
 bool isTreasure(eItem item);
 bool isOrb(eItem item);
-int getVirtualTreasureCount(progressCheck prog);
+int getVirtualTreasureCount(progressCheck prog, eItem i);
 eItem getItemByName(std::string name);
 int getLocationID(eItem treas, progressCheck prog, bool extra);
 
