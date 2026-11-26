@@ -70,15 +70,15 @@ void set_linux() {
   default_exec_name = "hyper";
   if(sdlver == 2) {
     opts = "-DFHS -DLINUX -I/usr/include/SDL2";
-    libs = " -lSDL2 -lSDL2_ttf -lSDL2_mixer -lSDL2_gfx -lGLEW -lGL -lpng -rdynamic -lpthread -lz";
+    libs = " -lSDL2 -lSDL2_ttf -lSDL2_mixer -lSDL2_gfx -lGLEW -lGL -lpng -rdynamic -lpthread -lz -lssl -lcrypto";
     }
   else if(sdlver == 3) {
     opts = "-DFHS -DLINUX -I/usr/include/SDL3";
-    libs = " -lSDL3 -lSDL3_ttf -lSDL3_mixer -lSDL3_gfx -lGLEW -lGL -lpng -rdynamic -lpthread -lz";
+    libs = " -lSDL3 -lSDL3_ttf -lSDL3_mixer -lSDL3_gfx -lGLEW -lGL -lpng -rdynamic -lpthread -lz -lssl -lcrypto";
     }
   else if(sdlver == 1) {
     opts = "-DFHS -DLINUX -I/usr/include/SDL";
-    libs = " -lSDL -lSDL_ttf -lSDL_mixer -lSDL_gfx -lGLEW -lGL -lpng -rdynamic -lpthread -lz";
+    libs = " -lSDL -lSDL_ttf -lSDL_mixer -lSDL_gfx -lGLEW -lGL -lpng -rdynamic -lpthread -lz -lssl -lcrypto";
     }
   else {
     opts = "-DFHS -DLINUX";
@@ -92,7 +92,7 @@ void set_mac() {
   linker = "g++";
   default_exec_name = "hyper";
   opts = "-DMAC -I/usr/local/include";
-  libs = " -L/usr/local/lib -framework AppKit -framework OpenGL -lSDL -lSDLMain -lSDL_gfx -lSDL_mixer -lSDL_ttf -lpng -lpthread -lz";
+  libs = " -L/usr/local/lib -framework AppKit -framework OpenGL -lSDL -lSDLMain -lSDL_gfx -lSDL_mixer -lSDL_ttf -lpng -lpthread -lz -lssl -lcrypto";
   }
 
 void set_mingw64() {
@@ -102,7 +102,7 @@ void set_mingw64() {
   linker = "g++";
   default_exec_name = "hyper";
   opts = "-DWINDOWS -DCAP_GLEW=1 -DCAP_PNG=1";
-  libs = " hyper.res -lopengl32 -lSDL -lSDL_gfx -lSDL_mixer -lSDL_ttf -lpthread -lz -lglew32 -lpng";
+  libs = " hyper.res -lopengl32 -lSDL -lSDL_gfx -lSDL_mixer -lSDL_ttf -lpthread -lz -lglew32 -lpng -lws2_32 -lcrypt32 -lssl -lcrypto";
   setvbuf(stdout, NULL, _IONBF, 0); // MinGW is quirky with output buffering
   }
 
@@ -119,7 +119,7 @@ void set_mingw64_cross() {
   if(sdlver == 1) libs += " -lSDL -lSDL_gfx -lSDL_mixer -lSDL_ttf";
   if(sdlver == 2) libs += " -lSDL2 -lSDL2_gfx -lSDL2_mixer -lSDL2_ttf";
   if(sdlver == 3) libs += " -lSDL3 -lSDL3_gfx -lSDL3_mixer -lSDL3_ttf";
-  libs += " -lpthread -lz -lglew32 -lpng";
+  libs += " -lpthread -lz -lglew32 -lpng -lws2_32 -lcrypt32 -lssl -lcrypto";
   setvbuf(stdout, NULL, _IONBF, 0); // MinGW is quirky with output buffering
   if(!file_exists("hyper64.res"))
     mysystem("x86_64-w64-mingw32-windres hyper.rc -O coff -o hyper64.res");
