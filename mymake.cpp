@@ -346,6 +346,9 @@ int main(int argc, char **argv) {
     }
   if(!optimized)
     compiler += " -g3";
+
+  opts += " -Isubmodules/apclientpp -Isubmodules/json/include -Isubmodules/valijson/include -Isubmodules/websocketpp -Isubmodules/wswrap/include";
+
   preprocessor += " " + standard;
   compiler += " " + standard;
   ifstream fs("hyper.cpp");
