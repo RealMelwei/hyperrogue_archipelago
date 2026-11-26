@@ -1,5 +1,5 @@
-#ifndef APINTERFACE_CPP
-#define APINTERFACE_CPP
+#include "hyper.h"
+
 #include <apclient.hpp>
 #include <apuuid.hpp>
 #include <stdio.h>
@@ -32,9 +32,17 @@
 
 using nlohmann::json;
 
-std::unique_ptr<APClient> client;
-bool ap_socket_connect_sent = false;
-bool ap_sync_queued = false;
+#if __cplusplus < 201500L
+decltype(APClient::DEFAULT_URI) constexpr APClient::DEFAULT_URI;  // c++14 needs a proper declaration
+#endif
+
+namespace hr {
+
+EX namespace ap {
+
+EX std::unique_ptr<APClient> client;
+EX bool ap_socket_connect_sent = false;
+EX bool ap_sync_queued = false;
 bool ap_connect_sent = false; // TODO: move to APClient::State ?
 bool is_https = false; // set to true if the context only supports wss://
 bool is_wss = false; // set to true if the connection specifically asked for wss://
@@ -46,10 +54,6 @@ std::string slot = "Player";
 #define OLD_DATAPACKAGE_CACHE "datapackage.json"
 #define UUID_FILE "uuid" // TODO: place in %appdata%
 #define CERT_STORE "cacert.pem"
-
-#if __cplusplus < 201500L
-decltype(APClient::DEFAULT_URI) constexpr APClient::DEFAULT_URI;  // c++14 needs a proper declaration
-#endif
 
 using namespace ap;
 
@@ -68,8 +72,7 @@ void connect_slot(const std::string& password)
     }
 }
 
-void connect_ap(const std::string& uri="", const std::string& newSlot="", const std::string& password="")
-{
+EX void connect_ap(const std::string& uri, const std::string& newSlot, const std::string& password) {
     ap_socket_connect_sent = true;
     client.reset();
 
@@ -213,4 +216,6 @@ void connect_ap(const std::string& uri="", const std::string& newSlot="", const 
     });
 }
 
-#endif
+EX }
+
+}

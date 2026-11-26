@@ -6,7 +6,6 @@
  */
 
 #include "hyper.h"
-#include "archipelago.cpp"
 namespace hr {
 // orbgen flags
 
@@ -436,7 +435,7 @@ EX ld orbcrossfun(int tr) {
 EX bool buildPrizeMirror(cell *c, int freq) {
   if(inv::on) return false;
   if(ap::landChecksReceived[itShard] < ap::progressCheck::orbunlockedglobal) return false;
-  if(freq && hrand(freq * 100 / orbprizefun(ap::getVirtualTreasureCount(ap::landChecksReceived[itShard]))) >= 100)
+  if(freq && hrand(freq * 100 / orbprizefun(ap::getVirtualTreasureCount(ap::landChecksReceived[itShard], itShard))) >= 100)
     return false;
   return mirror::build(c);
   }                    
@@ -493,7 +492,7 @@ EX void placePrizeOrb(cell *c) {
     eOrbLandRelation olr = getOLR(oi.orb, l);
     if(olr != olrPrize25 && olr != olrPrize3) continue;
     eItem orbLandTreasure = linf[oi.l].treasure;
-    int treas = ap::getVirtualTreasureCount(ap::landChecksReceived[orbLandTreasure]);
+    int treas = ap::getVirtualTreasureCount(ap::landChecksReceived[orbLandTreasure], orbLandTreasure);
     //if(olr == olrPrize3) treas *= 10;
     if(olr == olrPrize25 || olr == olrPrize3 || olr == olrGuest || olr == olrMonster || olr == olrAlways) {
       if(ap::landChecksReceived[orbLandTreasure]<ap::progressCheck::orbunlockedglobal) continue;
@@ -553,7 +552,7 @@ EX void placeLocalOrbs(cell *c) {
     if(ch == 1 && ls::any_chaos() && hrand(2) == 0 && items[treasureType(oi.l)] * landMultiplier(oi.l) >= (11+hrand(15)))
       ch = 0;
     eItem locTreas = linf[oi.l].treasure;
-    int tc = ap::getVirtualTreasureCount(ap::landChecksReceived[locTreas]);
+    int tc = ap::getVirtualTreasureCount(ap::landChecksReceived[locTreas], locTreas);
     int tcmin = treasureForLocal();
     if(inv::on) {
       if(!(oi.flags & orbgenflags::OSM_LOCAL25))
@@ -577,7 +576,7 @@ EX void placeLocalOrbs(cell *c) {
 EX void placeLocalSpecial(cell *c, int outof, int loc IS(1), int priz IS(1)) {
   if(safety || daily::on || extra_safety_for_memory(c) || peace::on) return;
   int i = hrand(outof);
-  if(i < loc && ap::getVirtualTreasureCount(ap::landChecksReceived[linf[(c->land)].treasure]) >= treasureForLocal() && !inv::on)
+  if(i < loc && ap::getVirtualTreasureCount(ap::landChecksReceived[linf[(c->land)].treasure], linf[(c->land)].treasure) >= treasureForLocal() && !inv::on)
     c->item = nativeOrbType(c->land);
   else if(i >= loc && i < loc + PRIZEMUL * priz)
     placePrizeOrb(c);
@@ -591,7 +590,7 @@ EX void placeCrossroadOrbs(cell *c) {
     if(!(oi.flags & orbgenflags::CROSS10)) continue;
     if(!oi.gchance) continue;
 
-    int treas = ap::getVirtualTreasureCount(ap::landChecksReceived[linf[oi.l].treasure]);
+    int treas = ap::getVirtualTreasureCount(ap::landChecksReceived[linf[oi.l].treasure], linf[oi.l].treasure);
     int mintreas = 10;
     
     if(inv::on) {
@@ -627,7 +626,7 @@ EX void placeOceanOrbs(cell *c) {
   for(auto& oi: orbinfos) {
     if(!(oi.flags & orbgenflags::CROSS10)) continue;
     
-    int treas = ap::getVirtualTreasureCount(ap::landChecksReceived[linf[oi.l].treasure]);
+    int treas = ap::getVirtualTreasureCount(ap::landChecksReceived[linf[oi.l].treasure], linf[oi.l].treasure);
     int mintreas = 10;
 
     if(inv::on) {

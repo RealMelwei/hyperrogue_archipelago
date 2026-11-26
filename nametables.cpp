@@ -1,6 +1,12 @@
-#include "archipelago.hpp"
+#include "hyper.h"
 
-void ap::init::initItemByID(){
+namespace hr {
+
+EX namespace ap {
+
+namespace init {
+
+void initItemByID(){
   ap::itemByID[0X00]=ap::getItemByName("Ice Diamond");
   ap::itemByID[0X01]=ap::getItemByName("Gold");
   ap::itemByID[0X02]=ap::getItemByName("Spice");
@@ -72,7 +78,7 @@ void ap::init::initItemByID(){
   ap::itemByID[0X55]=ap::getItemByName("Fuel");
 }
 
-void ap::init::initOrbByID(){
+void initOrbByID(){
   ap::orbByID[0X00]=ap::getItemByName("Orb of Flash");
   ap::orbByID[0X01]=ap::getItemByName("Orb of Life");
   ap::orbByID[0X02]=ap::getItemByName("Orb of Shielding");
@@ -144,12 +150,14 @@ void ap::init::initOrbByID(){
 //  ap::orbByID[0X55]=ap::getItemByName("Fuel");
 }
 
+}
+
 constexpr unsigned int str2int(const char* str, int h = 0)
 {
     return !str[h] ? 5381 : (str2int(str, h+1) * 33) ^ str[h];
 }
 
-int ap::getLocationID(eItem treas, ap::progressCheck prog){
+int getLocationID(eItem treas, ap::progressCheck prog){
   if(prog == ap::progressCheck::notingame || prog == ap::progressCheck::locked) return -1;
   int progBaseID = 0X100 * (((int) prog) - 1);
   switch(str2int(iinf[treas].name)){
@@ -225,7 +233,10 @@ int ap::getLocationID(eItem treas, ap::progressCheck prog){
   
 }
 
-namespace ap{
+#if HDR
+extern std::vector<std::string> invalidStartingLandNames;
+#endif
+
 std::vector<std::string> invalidStartingLandNames({
   "Kraken Depths",
   "Whirlpool",
@@ -241,4 +252,5 @@ std::vector<std::string> invalidStartingLandNames({
   "Crossroads V",
   "None"
 });
+EX }
 }

@@ -789,23 +789,19 @@ EX bool stillscreen;
 EX bool currently_scrolling;
 
 EX void mainloopiter() {
-  if ((!client || client->get_state() < APClient::State::SOCKET_CONNECTING) && !ap_socket_connect_sent) {
+  if ((!ap::client || ap::client->get_state() < APClient::State::SOCKET_CONNECTING) && !ap::ap_socket_connect_sent) {
     std::ifstream i("apsettings.json");
     if (i.is_open()) {
-      json state;
+      nlohmann::json state;
       i >> state;
       i.close();
-      if (state.contains("password")) {
-        connect_ap(state["ip"], state["slotname"], state["password"]);
-      } else {
-        connect_ap(state["ip"], state["slotname"]);
-      }
+      ap::connect_ap(state["ip"], state["slotname"], state.contains("password") ? state["password"] : "");
     } else {
       hr::addMessage("Could not open apsettings.json");
     }
   }
-  if(client) {
-    client->poll();
+  if(ap::client) {
+    ap::client->poll();
   }
   GLWRAP;
   DEBB(DF_GRAPH, ("main loop\n"));
