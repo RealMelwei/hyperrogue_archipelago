@@ -19,6 +19,9 @@
 #include "sysconfig.h"
 
 #include <stdarg.h>
+
+#include <apclient.hpp>
+
 #include "hyper_function.h"
 
 /** \brief the main namespace of HyperRogue */
