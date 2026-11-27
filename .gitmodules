@@ -9,7 +9,7 @@
 	url = https://github.com/tristanpenman/valijson.git
 [submodule "submodules/wswrap"]
 	path = submodules/wswrap
-	url = https://github.com/black-sliver/wswrap
+	url = https://github.com/Sirius902/wswrap
 [submodule "submodules/websocketpp"]
 	path = submodules/websocketpp
-	url = https://github.com/zaphoyd/websocketpp.git
+	url = https://github.com/cpprest-lts/websocketpp.git
