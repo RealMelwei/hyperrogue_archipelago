@@ -85,7 +85,7 @@ EX hookset<bool()> hooks_welcome_message;
 
 /** \brief Print the welcome message during the start of game. Depends on the current mode and other settings. */
 EX void welcomeMessage() {
-  if (!client || client->get_state() < APClient::State::SOCKET_CONNECTED) {
+  if (!ap::client || ap::client->get_state() < APClient::State::SOCKET_CONNECTED) {
     addMessage("Connecting... Game will restart once connected.");
   } else {
     addMessage("You can view your received checks in World Overview (instead of personal bests)");

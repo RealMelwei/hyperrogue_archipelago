@@ -6,7 +6,6 @@
  */
 
 #include "hyper.h"
-#include "archipelago.cpp"
 namespace hr {
 
 EX bool in_full_game() {

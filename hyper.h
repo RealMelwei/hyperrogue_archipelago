@@ -19,6 +19,9 @@
 #include "sysconfig.h"
 
 #include <stdarg.h>
+
+#include <apclient.hpp>
+
 #include "hyper_function.h"
 
 /** \brief the main namespace of HyperRogue */
@@ -965,5 +968,4 @@ static inline void set_flag(flagtype& f, flagtype which, bool b) {
 #define IS(z)
 #define EX
 
-#include "archipelago.hpp"
 #endif
